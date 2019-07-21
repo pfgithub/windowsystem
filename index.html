@@ -1,10 +1,50 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-	<head>
-		<meta charset="utf-8">
-		<title>window</title>
-	</head>
-	<body>
-		<script type="module" src="src/index.js" charset="utf-8"></script>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>window</title>
+    <link rel="import" href="https://scpl.dev/" id="scpl-website" />
+
+    <!-- Must -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <meta name="description" content="Description" />
+    <meta name="keywords" content="Keywords" />
+    <title>Page Title</title>
+
+    <!-- Android  -->
+    <meta name="theme-color" content="red" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- iOS -->
+    <meta name="apple-mobile-web-app-title" content="Application Title" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <!-- Windows  -->
+    <meta name="msapplication-navbutton-color" content="red" />
+    <meta name="msapplication-TileColor" content="red" />
+    <meta name="msapplication-TileImage" content="ms-icon-144x144.png" />
+    <meta name="msapplication-config" content="browserconfig.xml" />
+
+    <!-- Pinned Sites  -->
+    <meta name="application-name" content="Application Name" />
+    <meta name="msapplication-tooltip" content="Tooltip Text" />
+    <meta name="msapplication-starturl" content="/" />
+
+    <!-- Tap highlighting  -->
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- UC Mobile Browser  -->
+    <meta name="full-screen" content="yes" />
+    <meta name="browsermode" content="application" />
+  </head>
+  <body>
+    <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+    <script type="module" src="src/index.js" charset="utf-8"></script>
+  </body>
 </html>

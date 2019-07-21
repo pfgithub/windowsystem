@@ -1,8 +1,9 @@
 import * as util from "./utils.js";
+import { settings } from "./settings.js";
 
 util.addStylesheet(util.css`
 /*css*/
-    
+
 .window{
     transform:
         translate( var(--x), var(--y) );
@@ -13,42 +14,58 @@ util.addStylesheet(util.css`
 
 	position: absolute;
 	display: grid;
-	grid-template-rows: max-content 1fr;
-    overflow: hidden;
+}
+.ui[uistyle=dragabove] .window{
     border-radius: 6px;
+    overflow: hidden;
+	grid-template-rows: max-content 1fr;
     box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+}
+.ui[uistyle=dragbelow] .window{
+	grid-template-rows: 1fr max-content;
 }
 
 .animator{
     transform: scale(1);
     opacity: 1.0;
-    /* transition: 0.1s transform, 0.1s opacity; */
+    transition: 0.1s opacity;
     transform-origin: var(--origin-x) var(--origin-y);
     cursor: default;
-    width:100%;
-    height:100%;
+    position:absolute; /*for z-index on ios safari*/
 }
 .animator.drag{
-    transform: scale(1.05);
-    opacity: 0.9;
+    /* transform: scale(1.05); */ /*ox and oy disabled*/
+    /* opacity: 0.9; */ /*causes lag*/
     cursor: move;
 }
 .animator.scale{
     transform: scale(var(--progress-w), var(--progress-h));
-    opacity: 0.9;
+    /* opacity: 0.9; */
     cursor: resize;
 }
 
 .titlebar{
-    background-color: rgba(255, 255, 255, 0.8);
     padding: 5px;
     cursor: inherit;
     -webkit-user-select: none;
     user-select: none;
 }
+.ui[uistyle=dragabove] .titlebar{
+    background-color: rgba(255,255,255,0.9);
+}
+.ui[uistyle=dragbelow] .titlebar{
+    grid-row: 2;
+}
 .body{
     background-color: rgba(255, 255, 255, 1.0);
-    padding: 5px;
+    overflow: hidden;
+    width:100%; /*for ios safari fullscreen*/
+    height:100%;
+}
+.ui[uistyle=dragbelow] .body{
+    border-radius: 6px;
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+    	grid-template-rows: 0 1fr;
 }
 
 /*css*/
@@ -61,6 +78,8 @@ export class Window {
   constructor() {
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
+
+    this.isDragging = false;
 
     this.window = document.createElement("div");
     this.window.classList.add("window");
@@ -82,22 +101,30 @@ export class Window {
 
     this.body = document.createElement("div");
     this.body.classList.add("body");
-    this.body.appendChild(document.createTextNode("window body"));
     this.window.appendChild(this.body);
     this.animator.appendChild(this.window);
 
     this.node = this.animator;
 
-    this.titlebar.addEventListener("mousedown", this.dragEvent.bind(this)); // not capture because buttons
+    this.titlebar.addEventListener("pointerdown", this.dragEvent.bind(this)); // not capture because buttons
+    this.window.addEventListener;
     this.window.addEventListener(
-      "mousedown",
+      "pointerdown",
       e => {
         this.bringToFront();
-        if (e.altKey) {
-          if (util.getButton(e) === 1) {
-            this.dragEvent(e);
+        if (e.pointerType === "mouse") {
+          if (e.altKey) {
+            if (util.getButton(e) === 1) {
+              this.dragEvent(e);
+            }
+            if (util.getButton(e) === 2) {
+              this.resizeEvent(e);
+            }
           }
-          if (util.getButton(e) === 2) {
+        }
+        if (e.pointerType === "touch") {
+          // if touch down on titlebar, resize
+          if (this.isDragging) {
             this.resizeEvent(e);
           }
         }
@@ -108,31 +135,38 @@ export class Window {
   bringToFront() {
     this.manager && this.manager.bringToFront(this);
   }
+  // redo these:
+  // drag event = move top left bottom right based on cursor pos
+  // resize event = move bototm right based on cursor pos. two resizes at once = move multiple
   async dragEvent(e) {
     e.preventDefault();
     e.stopPropagation();
     const rect = this.window.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
     const offsetY = e.clientY - rect.top;
-    let addedDrag = false;
-    await util.startDragWatcher(util.getButton(e), e => {
+
+    await util.startDragWatcher(e, e => {
       this.setPosition({
         x: e.clientX - offsetX,
-        y: e.clientY - offsetY,
-        ox: e.clientX,
-        oy: e.clientY
+        y: e.clientY - offsetY
       });
-      if (!addedDrag) {
+      if (!this.isDragging) {
         this.animator.classList.add("drag");
-        addedDrag = true;
+        this.isDragging = true;
       }
     });
-    addedDrag && this.animator.classList.remove("drag");
+    // use requestanimationframe
+    // if touch, add momentum
+    this.isDragging && this.animator.classList.remove("drag");
+    this.isDragging = false;
+  }
+  get rect() {
+    return this._rect || this.window.getBoundingClientRect();
   }
   async resizeEvent(e) {
     e.preventDefault();
     e.stopPropagation();
-    const rect = this.window.getBoundingClientRect();
+    const rect = this.rect;
 
     const initialX = e.clientX;
     const initialY = e.clientY;
@@ -144,17 +178,24 @@ export class Window {
     let lastHeight;
 
     let addedDrag = false;
-    await util.startDragWatcher(util.getButton(e), e => {
+    await util.startDragWatcher(e, e => {
       lastWidth = e.clientX - initialX + initialWidth;
       lastHeight = e.clientY - initialY + initialHeight;
-      this.setPosition({
-        // w: e.clientX - initialX + initialWidth,
-        // h: e.clientY - initialY + initialHeight,
-        pw: lastWidth / initialWidth,
-        ph: lastHeight / initialHeight,
-        ox: rect.left,
-        oy: rect.top
-      });
+      if (settings.scaleMode === "fast") {
+        this.setPosition({
+          pw: lastWidth / initialWidth,
+          ph: lastHeight / initialHeight,
+          ox: rect.left,
+          oy: rect.top
+        });
+      } else {
+        this.setPosition({
+          pw: 1,
+          ph: 1,
+          w: lastWidth,
+          h: lastHeight
+        });
+      }
       if (!addedDrag) {
         this.animator.classList.add("scale");
         addedDrag = true;
@@ -179,5 +220,6 @@ export class Window {
     ph && this.animator.style.setProperty("--progress-h", ph);
     ox && this.animator.style.setProperty("--origin-x", ox + "px");
     oy && this.animator.style.setProperty("--origin-y", oy + "px");
+    this._rect = this.window.getBoundingClientRect();
   }
 }
