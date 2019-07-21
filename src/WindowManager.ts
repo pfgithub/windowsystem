@@ -1,4 +1,5 @@
 import * as util from "./utils.js";
+import { Window } from "./Window";
 
 util.addStylesheet(util.css`
 .windowlist{
@@ -10,6 +11,10 @@ util.addStylesheet(util.css`
 `);
 
 export class WindowManager {
+  windowlist: HTMLDivElement;
+  node: HTMLDivElement;
+  windows: Window[];
+  zIndex: number;
   constructor() {
     this.windowlist = document.createElement("div");
     this.windowlist.classList.add("windowlist");
@@ -17,21 +22,21 @@ export class WindowManager {
     this.windows = [];
     this.zIndex = 0;
   }
-  addWindow(window /*:window*/) {
+  addWindow(window: Window) {
     this.windows.push(window);
     window.manager = this;
 
-    window.node.style.zIndex = this.zIndex++;
+    window.node.style.zIndex = "" + this.zIndex++;
     this.windowlist.appendChild(window.node);
   }
-  bringToFront(window) {
+  bringToFront(window: Window) {
     if (this.windows[this.windows.length - 1] === window) {
       return;
     }
     this.windows = this.windows.filter(w => w !== window);
     this.windows.push(window);
 
-    window.node.style.zIndex = this.zIndex++;
+    window.node.style.zIndex = "" + this.zIndex++;
 
     // this.windowlist.appendChild(window.node);
   }

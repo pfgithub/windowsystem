@@ -1,6 +1,6 @@
 export class Settings {
-  // scaleMode: "fast" | "dynamic"
-  // uistyle: "dragabove" | "dragbelow" | "fullscreen"
+  readonly scaleMode: "fast" | "dynamic";
+  readonly uiStyle: "dragabove" | "dragbelow" | "fullscreen";
   constructor() {
     this.scaleMode = "fast";
     this.uiStyle = "dragabove";

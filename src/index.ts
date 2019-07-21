@@ -37,14 +37,14 @@ fullscreenFix.classList.add("fullscreenfix");
 
 let enterFullscreen = document.createElement("button");
 enterFullscreen.appendChild(document.createTextNode("Enter Fullscreen"));
-enterFullscreen.addEventListener("click", e => {
+enterFullscreen.addEventListener("click", () => {
   util.requestFullscreen(fullscreenFix);
 });
 fullscreenFix.appendChild(enterFullscreen);
 
 let refresh = document.createElement("button");
 refresh.appendChild(document.createTextNode("Refresh"));
-refresh.addEventListener("click", e => {
+refresh.addEventListener("click", () => {
   location.reload();
 });
 fullscreenFix.appendChild(refresh);

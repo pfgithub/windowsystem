@@ -1,5 +1,6 @@
 import * as util from "./utils.js";
 import { settings } from "./settings.js";
+import { WindowManager } from "./WindowManager";
 
 util.addStylesheet(util.css`
 /*css*/
@@ -72,9 +73,14 @@ util.addStylesheet(util.css`
 `);
 
 export class Window {
-  // node: HTMLDivElement
-  // titlebar: HTMLDivElement
-  // manager?: WindowManager
+  node: HTMLDivElement;
+  animator: HTMLDivElement;
+  isDragging: boolean; // remove
+  window: HTMLDivElement;
+  titlebar: HTMLDivElement;
+  body: HTMLDivElement;
+  manager?: WindowManager;
+  _rect?: ClientRect | DOMRect;
   constructor() {
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
@@ -138,14 +144,14 @@ export class Window {
   // redo these:
   // drag event = move top left bottom right based on cursor pos
   // resize event = move bototm right based on cursor pos. two resizes at once = move multiple
-  async dragEvent(e) {
+  async dragEvent(e: PointerEvent) {
     e.preventDefault();
     e.stopPropagation();
     const rect = this.window.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
     const offsetY = e.clientY - rect.top;
 
-    await util.startDragWatcher(e, e => {
+    await util.startDragWatcher(e, (e: PointerEvent) => {
       this.setPosition({
         x: e.clientX - offsetX,
         y: e.clientY - offsetY
@@ -163,7 +169,7 @@ export class Window {
   get rect() {
     return this._rect || this.window.getBoundingClientRect();
   }
-  async resizeEvent(e) {
+  async resizeEvent(e: PointerEvent) {
     e.preventDefault();
     e.stopPropagation();
     const rect = this.rect;
@@ -178,7 +184,7 @@ export class Window {
     let lastHeight;
 
     let addedDrag = false;
-    await util.startDragWatcher(e, e => {
+    await util.startDragWatcher(e, (e: PointerEvent) => {
       lastWidth = e.clientX - initialX + initialWidth;
       lastHeight = e.clientY - initialY + initialHeight;
       if (settings.scaleMode === "fast") {
@@ -211,13 +217,31 @@ export class Window {
     }
     addedDrag && this.animator.classList.remove("scale");
   }
-  setPosition({ x, y, w, h, pw, ph, ox, oy, wox, woy } = {}) {
+  setPosition({
+    x,
+    y,
+    w,
+    h,
+    pw,
+    ph,
+    ox,
+    oy
+  }: {
+    x?: number;
+    y?: number;
+    w?: number;
+    h?: number;
+    pw?: number;
+    ph?: number;
+    ox?: number;
+    oy?: number;
+  } = {}) {
     x && this.window.style.setProperty("--x", x + "px");
     y && this.window.style.setProperty("--y", y + "px");
     w && this.window.style.setProperty("--w", w + "px");
     h && this.window.style.setProperty("--h", h + "px");
-    pw && this.animator.style.setProperty("--progress-w", pw);
-    ph && this.animator.style.setProperty("--progress-h", ph);
+    pw && this.animator.style.setProperty("--progress-w", "" + pw);
+    ph && this.animator.style.setProperty("--progress-h", "" + ph);
     ox && this.animator.style.setProperty("--origin-x", ox + "px");
     oy && this.animator.style.setProperty("--origin-y", oy + "px");
     this._rect = this.window.getBoundingClientRect();

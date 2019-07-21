@@ -1,10 +1,10 @@
 window.addEventListener("contextmenu", e => e.preventDefault());
 
-export function css(text) {
-  return "" + text;
+export function css(text: TemplateStringsArray, ...values: string[]) {
+  return text.reduce((total, v, i) => total + v + (values[i] || ""), "");
 }
 
-export function addStylesheet(css /*:string*/) {
+export function addStylesheet(css: string) {
   const style = document.createElement("style");
   style.type = "text/css";
   style.appendChild(document.createTextNode(css));
@@ -12,11 +12,12 @@ export function addStylesheet(css /*:string*/) {
   document.head.appendChild(style);
 }
 
-export function requestFullscreen(node /*: HTMLElement*/) {
+export function requestFullscreen(node: HTMLElement) {
   try {
     node.requestFullscreen();
   } catch (e) {
     try {
+      //@ts-ignore
       node.webkitRequestFullScreen();
     } catch (e) {
       alert("Fullscreen not available.");
@@ -24,16 +25,16 @@ export function requestFullscreen(node /*: HTMLElement*/) {
   }
 }
 
-export function getButton(e) {
+export function getButton(e: PointerEvent) {
   return [1, 4, 2, 8, 16][e.button];
 }
 
 export function startDragWatcher(
-  startEvent,
-  cb /*: e => void*/
+  startEvent: PointerEvent,
+  cb: (e: PointerEvent) => void
 ) /*: Promise<e: mouseupevent>*/ {
   return new Promise(resolve => {
-    let moveListener = e => {
+    let moveListener = (e: PointerEvent) => {
       if (e.pointerId !== startEvent.pointerId) {
         return;
       }
@@ -45,7 +46,7 @@ export function startDragWatcher(
       cb(e);
     };
     window.addEventListener("pointermove", moveListener, { capture: true });
-    let stopListener = e => {
+    let stopListener = (e: PointerEvent) => {
       if (e.pointerId !== startEvent.pointerId) {
         return;
       }
