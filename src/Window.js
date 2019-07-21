@@ -5,7 +5,6 @@ util.addStylesheet(util.css`
     
 .window{
     transform:
-        scale(var(--progress-w), var(--progress-h))
         translate( var(--x), var(--y) );
     top: 0;
     left: 0;
@@ -23,9 +22,11 @@ util.addStylesheet(util.css`
 .animator{
     transform: scale(1);
     opacity: 1.0;
-    transition: 0.1s transform, 0.1s opacity;
+    /* transition: 0.1s transform, 0.1s opacity; */
     transform-origin: var(--origin-x) var(--origin-y);
     cursor: default;
+    width:100%;
+    height:100%;
 }
 .animator.drag{
     transform: scale(1.05);
@@ -33,12 +34,16 @@ util.addStylesheet(util.css`
     cursor: move;
 }
 .animator.scale{
+    transform: scale(var(--progress-w), var(--progress-h));
+    opacity: 0.9;
+    cursor: resize;
 }
 
 .titlebar{
     background-color: rgba(255, 255, 255, 0.8);
     padding: 5px;
     cursor: inherit;
+    -webkit-user-select: none;
     user-select: none;
 }
 .body{
@@ -52,6 +57,7 @@ util.addStylesheet(util.css`
 export class Window {
   // node: HTMLDivElement
   // titlebar: HTMLDivElement
+  // manager?: WindowManager
   constructor() {
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
@@ -82,17 +88,25 @@ export class Window {
 
     this.node = this.animator;
 
-    this.titlebar.addEventListener("mousedown", this.dragEvent.bind(this));
-    this.window.addEventListener("mousedown", e => {
-      if (e.altKey) {
-        if (util.getButton(e) === 1) {
-          this.dragEvent(e);
+    this.titlebar.addEventListener("mousedown", this.dragEvent.bind(this)); // not capture because buttons
+    this.window.addEventListener(
+      "mousedown",
+      e => {
+        this.bringToFront();
+        if (e.altKey) {
+          if (util.getButton(e) === 1) {
+            this.dragEvent(e);
+          }
+          if (util.getButton(e) === 2) {
+            this.resizeEvent(e);
+          }
         }
-        if (util.getButton(e) === 2) {
-          this.resizeEvent(e);
-        }
-      }
-    });
+      },
+      { capture: true }
+    );
+  }
+  bringToFront() {
+    this.manager && this.manager.bringToFront(this);
   }
   async dragEvent(e) {
     e.preventDefault();
@@ -126,26 +140,43 @@ export class Window {
     const initialWidth = rect.width;
     const initialHeight = rect.height;
 
+    let lastWidth;
+    let lastHeight;
+
     let addedDrag = false;
     await util.startDragWatcher(util.getButton(e), e => {
+      lastWidth = e.clientX - initialX + initialWidth;
+      lastHeight = e.clientY - initialY + initialHeight;
       this.setPosition({
-        w: e.clientX - initialX + initialWidth,
-        h: e.clientY - initialY + initialHeight
+        // w: e.clientX - initialX + initialWidth,
+        // h: e.clientY - initialY + initialHeight,
+        pw: lastWidth / initialWidth,
+        ph: lastHeight / initialHeight,
+        ox: rect.left,
+        oy: rect.top
       });
       if (!addedDrag) {
         this.animator.classList.add("scale");
         addedDrag = true;
       }
     });
-    addedDrag && this.animator.classList.remove("drag");
+    if (lastWidth && lastHeight) {
+      this.setPosition({
+        pw: 1,
+        ph: 1,
+        w: lastWidth,
+        h: lastHeight
+      });
+    }
+    addedDrag && this.animator.classList.remove("scale");
   }
   setPosition({ x, y, w, h, pw, ph, ox, oy, wox, woy } = {}) {
     x && this.window.style.setProperty("--x", x + "px");
     y && this.window.style.setProperty("--y", y + "px");
     w && this.window.style.setProperty("--w", w + "px");
     h && this.window.style.setProperty("--h", h + "px");
-    pw && this.window.style.setProperty("--progress-w", pw);
-    ph && this.window.style.setProperty("--progress-h", ph);
+    pw && this.animator.style.setProperty("--progress-w", pw);
+    ph && this.animator.style.setProperty("--progress-h", ph);
     ox && this.animator.style.setProperty("--origin-x", ox + "px");
     oy && this.animator.style.setProperty("--origin-y", oy + "px");
   }

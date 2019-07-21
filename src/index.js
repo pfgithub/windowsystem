@@ -1,5 +1,6 @@
 import * as util from "./utils.js";
 import { Window } from "./Window.js";
+import { WindowManager } from "./WindowManager.js";
 
 util.addStylesheet(util.css`
 html {
@@ -15,7 +16,11 @@ body {
 }	
 `);
 
+const wm = new WindowManager();
+
 for (let i = 0; i < 10; i++) {
   let window = new Window();
-  document.body.appendChild(window.node);
+  wm.addWindow(window);
 }
+
+document.body.appendChild(wm.node);
