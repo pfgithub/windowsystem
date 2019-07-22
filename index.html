@@ -42,6 +42,13 @@
     <meta name="browsermode" content="application" />
   </head>
   <body>
-    <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+    <script>
+      if ("PointerEvent" in window) {
+      } else {
+        let scriptTag = document.createElement("script");
+        scriptTag.src = "https://code.jquery.com/pep/0.4.3/pep.js";
+        document.body.appendChild(scriptTag);
+      }
+    </script>
   </body>
 </html>
