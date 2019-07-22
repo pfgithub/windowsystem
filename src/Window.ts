@@ -35,16 +35,13 @@ util.addStylesheet($scss`
     transform-origin: var(--origin-x) var(--origin-y);
     cursor: default;
     position:absolute; /*for z-index on ios safari*/
-}
-.animator.drag{
-    /* transform: scale(1.05); */ /*ox and oy disabled*/
-    /* opacity: 0.9; */ /*causes lag*/
-    cursor: move;
-}
-.animator.scale{
-    transform: scale(var(--progress-w), var(--progress-h));
-    /* opacity: 0.9; */
-    cursor: resize;
+    &.drag{
+        cursor: move;
+    }
+    &.scale{
+        transform: scale(var(--progress-w), var(--progress-h)); // could do --pw / --w for pixels
+        cursor: resize;
+    }
 }
 
 .titlebar{
@@ -52,23 +49,23 @@ util.addStylesheet($scss`
     cursor: inherit;
     -webkit-user-select: none;
     user-select: none;
-}
-.ui[uistyle=dragabove] .titlebar{
-    background-color: rgba(255,255,255,0.9);
-}
-.ui[uistyle=dragbelow] .titlebar{
-    grid-row: 2;
+    .ui[uistyle=dragabove] &{
+        background-color: rgba(255,255,255,0.9);
+    }
+    .ui[uistyle=dragbelow] &{
+        grid-row: 2;
+    }
 }
 .body{
     background-color: rgba(255, 255, 255, 1.0);
     overflow: hidden;
     width:100%; /*for ios safari fullscreen*/
     height:100%;
-}
-.ui[uistyle=dragbelow] .body{
-    border-radius: 6px;
-    box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
-    	grid-template-rows: 0 1fr;
+    .ui[uistyle=dragbelow] &{
+        border-radius: 6px;
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+        	grid-template-rows: 0 1fr;
+    }
 }
 
 `);

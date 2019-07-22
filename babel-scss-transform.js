@@ -20,7 +20,6 @@ module.exports.default = function({ types: t }) {
           let value = sass
             .renderSync({ data: raw, outputStyle: "compressed" })
             .css.toString("utf-8");
-          console.log(raw, value);
           node.quasi.quasis[0].value.raw = JSON.stringify(value).replace(
             /(^"|"$)/g,
             ""
