@@ -2,8 +2,6 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
-    <title>window</title>
-    <link rel="import" href="https://scpl.dev/" id="scpl-website" />
 
     <!-- Must -->
     <meta charset="utf-8" />
@@ -14,7 +12,7 @@
     />
     <meta name="description" content="Description" />
     <meta name="keywords" content="Keywords" />
-    <title>Page Title</title>
+    <title><%= htmlWebpackPlugin.options.title %></title>
 
     <!-- Android  -->
     <meta name="theme-color" content="red" />
@@ -45,6 +43,5 @@
   </head>
   <body>
     <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
-    <script type="module" src="dist/index.js" charset="utf-8"></script>
   </body>
 </html>

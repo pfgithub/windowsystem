@@ -1,10 +1,11 @@
-import * as util from "./utils.js";
-import { settings } from "./settings.js";
+import * as util from "./utils";
+import { settings } from "./settings";
 import { WindowManager } from "./WindowManager";
 
-util.addStylesheet(util.css`
-/*css*/
+const $scss = util.css;
 
+util.addStylesheet($scss`
+    
 .window{
     transform:
         translate( var(--x), var(--y) );
@@ -12,18 +13,19 @@ util.addStylesheet(util.css`
     left: 0;
     width: var(--w);
     height: var(--h);
-
-	position: absolute;
-	display: grid;
-}
-.ui[uistyle=dragabove] .window{
-    border-radius: 6px;
-    overflow: hidden;
-	grid-template-rows: max-content 1fr;
-    box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
-}
-.ui[uistyle=dragbelow] .window{
-	grid-template-rows: 1fr max-content;
+    
+    position: absolute;
+    display: grid;
+    
+    .ui[uistyle=dragabove] &{
+        border-radius: 6px;
+        overflow: hidden;
+    	grid-template-rows: max-content 1fr;
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+    }
+    .ui[uistyle=dragbelow] &{
+    	grid-template-rows: 1fr max-content;
+    }
 }
 
 .animator{
@@ -69,7 +71,6 @@ util.addStylesheet(util.css`
     	grid-template-rows: 0 1fr;
 }
 
-/*css*/
 `);
 
 export class Window {

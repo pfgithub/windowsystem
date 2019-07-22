@@ -9,6 +9,7 @@
     "lib": ["es2017", "dom"],
     "strict": true,
     "isolatedModules": true,
+    "sourceMap": true,
     "types": []
   },
   "include": ["src/**/*", "bin/**/*", "test/**/*", "index.ts"],

@@ -1,11 +1,11 @@
-import * as util from "./utils.js";
+import * as util from "./utils";
 
-util.addStylesheet(util.css`
+const $scss = util.css;
+
+util.addStylesheet($scss`
 	
 `);
 
 export class Template {
-	constructor(){
-		
-	}
+  constructor() {}
 }

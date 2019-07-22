@@ -1,7 +1,8 @@
 window.addEventListener("contextmenu", e => e.preventDefault());
 
-export function css(text: TemplateStringsArray, ...values: string[]) {
-  return text.reduce((total, v, i) => total + v + (values[i] || ""), "");
+export function css(text: TemplateStringsArray) {
+  // return text.reduce((total, v, i) => total + v + (values[i] || ""), "");
+  return text[0];
 }
 
 export function addStylesheet(css: string) {

@@ -1,10 +1,12 @@
-import * as util from "./utils.js";
-import { Window } from "./Window.js";
-import { BrowserWindow } from "./BrowserWindow.js";
-import { WindowManager } from "./WindowManager.js";
-import { settings } from "./settings.js";
+import * as util from "./utils";
+import { Window } from "./Window";
+import { BrowserWindow } from "./BrowserWindow";
+import { WindowManager } from "./WindowManager";
+import { settings } from "./settings";
 
-util.addStylesheet(util.css`
+const $scss = util.css;
+
+util.addStylesheet($scss`
 html {
   height: 100%;
   width:100%;

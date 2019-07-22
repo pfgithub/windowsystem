@@ -1,7 +1,9 @@
-import * as util from "./utils.js";
+import * as util from "./utils";
 import { Window } from "./Window";
 
-util.addStylesheet(util.css`
+const $scss = util.css;
+
+util.addStylesheet($scss`
 .windowlist{
 	/*unfortunately, some fixes would be required to allow custom positioning on windowlist because mouse events must be on document*/
 	position: absolute;

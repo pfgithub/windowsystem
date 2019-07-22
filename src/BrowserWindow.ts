@@ -1,7 +1,9 @@
-import * as util from "./utils.js";
-import { Window } from "./Window.js";
+import * as util from "./utils";
+import { Window } from "./Window";
 
-util.addStylesheet(util.css`
+const $scss = util.css;
+
+util.addStylesheet($scss`
 .browser{
 	border: none;
 	width: 100%;
