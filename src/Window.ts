@@ -70,6 +70,20 @@ util.addStylesheet($scss`
 
 `);
 
+type WindowPosition = {
+  x1: Readonly<number>;
+  y1: Readonly<number>;
+  x2: Readonly<number>;
+  y2: Readonly<number>;
+};
+
+type ComputedWindowPosition = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
 export class Window {
   node: HTMLDivElement;
   animator: HTMLDivElement;
@@ -79,6 +93,9 @@ export class Window {
   body: HTMLDivElement;
   manager?: WindowManager;
   _rect?: ClientRect | DOMRect;
+  _computedPosition: ComputedWindowPosition;
+  _pos: WindowPosition;
+  pins: { x1?: number; y1?: number; x2?: number; y2?: number };
   constructor() {
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
@@ -87,16 +104,16 @@ export class Window {
 
     this.window = document.createElement("div");
     this.window.classList.add("window");
-    this.setPosition({
-      x: 25,
-      y: 50,
-      w: 500,
-      h: 600,
-      pw: 1,
-      ph: 1,
-      ox: 0,
-      oy: 0
-    });
+
+    this.pins = {};
+    this._pos = { x1: -1, y1: -1, x2: -1, y2: -1 };
+    this._computedPosition = { x: -1, y: -1, w: -1, h: -1 };
+    this.pos = {
+      x1: 25,
+      y1: 25,
+      x2: 125,
+      y2: 125
+    };
 
     this.titlebar = document.createElement("div");
     this.titlebar.classList.add("titlebar");
@@ -110,7 +127,7 @@ export class Window {
 
     this.node = this.animator;
 
-    this.titlebar.addEventListener("pointerdown", this.dragEvent.bind(this)); // not capture because buttons
+    this.titlebar.addEventListener("pointerdown", this.pinnedDrag.bind(this)); // not capture because buttons
     this.window.addEventListener;
     this.window.addEventListener(
       "pointerdown",
@@ -119,17 +136,17 @@ export class Window {
         if (e.pointerType === "mouse") {
           if (e.altKey) {
             if (util.getButton(e) === 1) {
-              this.dragEvent(e);
+              this.pinnedDrag(e);
             }
             if (util.getButton(e) === 2) {
-              this.resizeEvent(e);
+              // this.resizeEvent(e);
             }
           }
         }
         if (e.pointerType === "touch") {
           // if touch down on titlebar, resize
           if (this.isDragging) {
-            this.resizeEvent(e);
+            // this.resizeEvent(e);
           }
         }
       },
@@ -142,106 +159,76 @@ export class Window {
   // redo these:
   // drag event = move top left bottom right based on cursor pos
   // resize event = move bototm right based on cursor pos. two resizes at once = move multiple
-  async dragEvent(e: PointerEvent) {
+  async pinnedDrag(e: PointerEvent) {
     e.preventDefault();
     e.stopPropagation();
     const rect = this.window.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
+    let oldX = e.clientX;
+    let oldY = e.clientY;
+
+    this.pins.x1
+      ? (this.pins = {
+          ...this.pins,
+          x2: e.pointerId,
+          y2: e.pointerId
+        })
+      : (this.pins = {
+          x1: e.pointerId,
+          y1: e.pointerId,
+          x2: e.pointerId,
+          y2: e.pointerId
+        });
 
     await util.startDragWatcher(e, (e: PointerEvent) => {
-      this.setPosition({
-        x: e.clientX - offsetX,
-        y: e.clientY - offsetY
-      });
-      if (!this.isDragging) {
-        this.animator.classList.add("drag");
-        this.isDragging = true;
-      }
+      this.pos = {
+        x1: this.pos.x1 + (this.pins.x1 === e.pointerId ? e.clientX - oldX : 0),
+        y1: this.pos.y1 + (this.pins.y1 === e.pointerId ? e.clientY - oldY : 0),
+        x2: this.pos.x2 + (this.pins.x2 === e.pointerId ? e.clientX - oldX : 0),
+        y2: this.pos.y2 + (this.pins.y2 === e.pointerId ? e.clientY - oldY : 0)
+      };
+      oldX = e.clientX;
+      oldY = e.clientY;
     });
-    // use requestanimationframe
-    // if touch, add momentum
-    this.isDragging && this.animator.classList.remove("drag");
-    this.isDragging = false;
+    this.pins = {
+      x1: this.pins.x1 === e.pointerId ? undefined : this.pins.x1,
+      y1: this.pins.y1 === e.pointerId ? undefined : this.pins.y1,
+      x2: this.pins.x2 === e.pointerId ? undefined : this.pins.x2,
+      y2: this.pins.y2 === e.pointerId ? undefined : this.pins.y2
+    };
   }
   get rect() {
     return this._rect || this.window.getBoundingClientRect();
   }
-  async resizeEvent(e: PointerEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    const rect = this.rect;
-
-    const initialX = e.clientX;
-    const initialY = e.clientY;
-
-    const initialWidth = rect.width;
-    const initialHeight = rect.height;
-
-    let lastWidth;
-    let lastHeight;
-
-    let addedDrag = false;
-    await util.startDragWatcher(e, (e: PointerEvent) => {
-      lastWidth = e.clientX - initialX + initialWidth;
-      lastHeight = e.clientY - initialY + initialHeight;
-      if (settings.scaleMode === "fast") {
-        this.setPosition({
-          pw: lastWidth / initialWidth,
-          ph: lastHeight / initialHeight,
-          ox: rect.left,
-          oy: rect.top
-        });
-      } else {
-        this.setPosition({
-          pw: 1,
-          ph: 1,
-          w: lastWidth,
-          h: lastHeight
-        });
-      }
-      if (!addedDrag) {
-        this.animator.classList.add("scale");
-        addedDrag = true;
-      }
-    });
-    if (lastWidth && lastHeight) {
-      this.setPosition({
-        pw: 1,
-        ph: 1,
-        w: lastWidth,
-        h: lastHeight
-      });
-    }
-    addedDrag && this.animator.classList.remove("scale");
+  get pos(): Readonly<WindowPosition> {
+    return this._pos;
   }
-  setPosition({
-    x,
-    y,
-    w,
-    h,
-    pw,
-    ph,
-    ox,
-    oy
-  }: {
-    x?: number;
-    y?: number;
-    w?: number;
-    h?: number;
-    pw?: number;
-    ph?: number;
-    ox?: number;
-    oy?: number;
-  } = {}) {
-    x && this.window.style.setProperty("--x", x + "px");
-    y && this.window.style.setProperty("--y", y + "px");
-    w && this.window.style.setProperty("--w", w + "px");
-    h && this.window.style.setProperty("--h", h + "px");
-    pw && this.animator.style.setProperty("--progress-w", "" + pw);
-    ph && this.animator.style.setProperty("--progress-h", "" + ph);
-    ox && this.animator.style.setProperty("--origin-x", ox + "px");
-    oy && this.animator.style.setProperty("--origin-y", oy + "px");
+  set pos(newval: Readonly<WindowPosition>) {
+    console.log("setting pos", newval);
+    this._pos = newval;
+    let oldComputed = this._computedPosition;
+    this._computedPosition = this.computePosition();
+    this.updatePosition(oldComputed);
+  }
+  updatePosition(old: ComputedWindowPosition) {
+    let pos = this._computedPosition;
+    pos.x !== old.x && this.window.style.setProperty("--x", pos.x + "px");
+    pos.y !== old.y && this.window.style.setProperty("--y", pos.y + "px");
+    pos.w !== old.w && this.window.style.setProperty("--w", pos.w + "px");
+    pos.h !== old.h && this.window.style.setProperty("--h", pos.h + "px");
+    // pw && this.animator.style.setProperty("--progress-w", "" + pw); // coming soon
+    // ph && this.animator.style.setProperty("--progress-h", "" + ph); // coming soon
+    pos.x !== old.x &&
+      this.animator.style.setProperty("--origin-x", pos.x + "px");
+    pos.y !== old.y &&
+      this.animator.style.setProperty("--origin-y", pos.y + "px");
     this._rect = this.window.getBoundingClientRect();
+  }
+  computePosition(): ComputedWindowPosition {
+    return {
+      x: this._pos.x1,
+      y: this._pos.y1,
+      w: this._pos.x2 - this._pos.x1,
+      h: this._pos.y2 - this._pos.y1
+    };
   }
 }

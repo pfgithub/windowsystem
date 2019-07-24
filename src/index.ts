@@ -19,7 +19,7 @@ html {
   overflow: hidden;
   touch-action: none;
 }
-body{   
+body{
     height: 100%;
     overflow: hidden;
     margin: 0;
@@ -34,7 +34,7 @@ body{
     height: 100%;
     width:100%;
     touch-action: none;
-}	
+}
 `);
 
 document.body.classList.add("ui");
@@ -42,6 +42,7 @@ document.body.setAttribute("uistyle", settings.uiStyle);
 
 let fullscreenFix = document.createElement("div");
 fullscreenFix.classList.add("fullscreenfix");
+fullscreenFix.setAttribute("touch-action", "none");
 
 let enterFullscreen = document.createElement("button");
 enterFullscreen.appendChild(document.createTextNode("Enter Fullscreen"));
