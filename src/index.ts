@@ -1,8 +1,14 @@
 import * as util from "./utils";
 import { Window } from "./Window";
 import { BrowserWindow } from "./BrowserWindow";
+import { SettingsWindow } from "./SettingsWindow";
 import { WindowManager } from "./WindowManager";
 import { settings } from "./settings";
+
+if ("PointerEvent" in window) {
+} else {
+  import("pepjs");
+}
 
 const $scss = util.css;
 
@@ -58,6 +64,7 @@ for (let i = 0; i < 10; i++) {
   wm.addWindow(window);
 }
 wm.addWindow(new BrowserWindow());
+wm.addWindow(new SettingsWindow());
 
 fullscreenFix.appendChild(wm.node);
 document.body.appendChild(fullscreenFix);

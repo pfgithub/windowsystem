@@ -1,5 +1,6 @@
 const path = require("path");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.ts",
@@ -12,7 +13,10 @@ module.exports = {
         exclude: /node_modules/,
         query: {
           presets: ["@babel/preset-typescript"],
-          plugins: ["./babel-scss-transform.js"]
+          plugins: [
+            "./babel-scss-transform.js",
+            "@babel/plugin-syntax-dynamic-import"
+          ]
         }
       }
     ]
@@ -27,7 +31,14 @@ module.exports = {
   plugins: [
     new HTMLWebpackPlugin({
       title: "Window Simulator",
-      template: "index.html"
-    })
+      template: "public/index.html"
+    }),
+    new CopyPlugin([
+      {
+        from: path.resolve(__dirname, "public"),
+        to: path.resolve(__dirname, "dist"),
+        ignore: ["index.html"]
+      }
+    ])
   ]
 };
