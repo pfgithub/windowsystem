@@ -18,6 +18,7 @@ export class SettingsWindow extends Window {
     this.settingsPane.classList.add("settings");
 
     this.dragAboveButton = document.createElement("button");
+    this.dragAboveButton.appendChild(document.createTextNode("Drag Above"));
     this.settingsPane.appendChild(this.dragAboveButton);
     this.dragAboveButton.addEventListener(
       "click",
@@ -26,6 +27,7 @@ export class SettingsWindow extends Window {
 
     this.dragBelowButton = document.createElement("button");
     this.settingsPane.appendChild(this.dragBelowButton);
+    this.dragBelowButton.appendChild(document.createTextNode("Drag Below"));
     this.dragBelowButton.addEventListener(
       "click",
       () => (settings.uiStyle = "dragbelow")

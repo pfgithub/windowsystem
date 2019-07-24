@@ -29,17 +29,16 @@ util.addStylesheet($scss`
 }
 
 .animator{
-    transform: scale(1);
     opacity: 1.0;
     transition: 0.1s opacity;
     transform-origin: var(--origin-x) var(--origin-y);
+    transform: scale(var(--progress-w), var(--progress-h));
     cursor: default;
     position:absolute; /*for z-index on ios safari*/
     &.drag{
         cursor: move;
     }
     &.scale{
-        transform: scale(var(--progress-w), var(--progress-h)); // could do --pw / --w for pixels
         cursor: resize;
     }
 }
@@ -75,6 +74,7 @@ type WindowPosition = {
   y1: Readonly<number>;
   x2: Readonly<number>;
   y2: Readonly<number>;
+  resizing: boolean;
 };
 
 type ComputedWindowPosition = {
@@ -82,6 +82,8 @@ type ComputedWindowPosition = {
   y: number;
   w: number;
   h: number;
+  pw: number;
+  ph: number;
 };
 
 export class Window {
@@ -94,8 +96,10 @@ export class Window {
   manager?: WindowManager;
   _rect?: ClientRect | DOMRect;
   _computedPosition: ComputedWindowPosition;
+  _computedBeforeResize: { w: number; h: number };
   _pos: WindowPosition;
   pins: { x1?: number; y1?: number; x2?: number; y2?: number };
+  pointersDown: number[];
   constructor() {
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
@@ -106,13 +110,16 @@ export class Window {
     this.window.classList.add("window");
 
     this.pins = {};
-    this._pos = { x1: -1, y1: -1, x2: -1, y2: -1 };
-    this._computedPosition = { x: -1, y: -1, w: -1, h: -1 };
+    this.pointersDown = [];
+    this._pos = { x1: -1, y1: -1, x2: -1, y2: -1, resizing: true };
+    this._computedPosition = { x: -1, y: -1, w: -1, h: -1, pw: -1, ph: -1 };
+    this._computedBeforeResize = { w: -1, h: -1 };
     this.pos = {
       x1: 25,
       y1: 25,
       x2: 125,
-      y2: 125
+      y2: 125,
+      resizing: false
     };
 
     this.titlebar = document.createElement("div");
@@ -127,7 +134,9 @@ export class Window {
 
     this.node = this.animator;
 
-    this.titlebar.addEventListener("pointerdown", this.pinnedDrag.bind(this)); // not capture because buttons
+    this.titlebar.addEventListener("pointerdown", e => {
+      this.pinnedDrag(4, e);
+    }); // not capture because buttons
     this.window.addEventListener;
     this.window.addEventListener(
       "pointerdown",
@@ -136,18 +145,16 @@ export class Window {
         if (e.pointerType === "mouse") {
           if (e.altKey) {
             if (util.getButton(e) === 1) {
-              this.pinnedDrag(e);
+              return this.pinnedDrag(4, e);
             }
             if (util.getButton(e) === 2) {
-              // this.resizeEvent(e);
+              return this.pinnedDrag(2, e);
             }
           }
         }
-        if (e.pointerType === "touch") {
-          // if touch down on titlebar, resize
-          if (this.isDragging) {
-            // this.resizeEvent(e);
-          }
+        // if touch down on titlebar, resize
+        if (this.pointersDown.length >= 1) {
+          return this.pinnedDrag(2, e);
         }
       },
       { capture: true }
@@ -159,18 +166,42 @@ export class Window {
   // redo these:
   // drag event = move top left bottom right based on cursor pos
   // resize event = move bototm right based on cursor pos. two resizes at once = move multiple
-  async pinnedDrag(e: PointerEvent) {
+  async pinnedDrag(pins: number, e: PointerEvent) {
     e.preventDefault();
     e.stopPropagation();
     const rect = this.window.getBoundingClientRect();
     let oldX = e.clientX;
     let oldY = e.clientY;
 
-    this.pins.x1
+    let leftDist = Math.abs(rect.left - e.clientX);
+    let rightDist = Math.abs(rect.right - e.clientX);
+    let topDist = Math.abs(rect.top - e.clientY);
+    let bottomDist = Math.abs(rect.bottom - e.clientY);
+
+    console.log(e.clientX, rect.width, e.clientY, rect.height);
+
+    let expectedPins = {
+      ...(e.clientX - rect.left < 0.33 * rect.width ? { x1: e.pointerId } : {}),
+      ...(e.clientX - rect.left > 0.66 * rect.width ? { x2: e.pointerId } : {}),
+      ...(e.clientY - rect.top < 0.33 * rect.height ? { y1: e.pointerId } : {}),
+      ...(e.clientY - rect.top > 0.66 * rect.height ? { y2: e.pointerId } : {})
+    };
+
+    if (Object.keys(expectedPins).length === 0) {
+      expectedPins = {
+        x1: e.pointerId,
+        y1: e.pointerId,
+        x2: e.pointerId,
+        y2: e.pointerId
+      };
+    }
+
+    e.clientX - rect.left;
+
+    this.pointersDown.length >= 1 || pins === 2
       ? (this.pins = {
           ...this.pins,
-          x2: e.pointerId,
-          y2: e.pointerId
+          ...expectedPins
         })
       : (this.pins = {
           x1: e.pointerId,
@@ -178,22 +209,34 @@ export class Window {
           x2: e.pointerId,
           y2: e.pointerId
         });
+    this.pointersDown.push(e.pointerId);
 
     await util.startDragWatcher(e, (e: PointerEvent) => {
       this.pos = {
         x1: this.pos.x1 + (this.pins.x1 === e.pointerId ? e.clientX - oldX : 0),
         y1: this.pos.y1 + (this.pins.y1 === e.pointerId ? e.clientY - oldY : 0),
         x2: this.pos.x2 + (this.pins.x2 === e.pointerId ? e.clientX - oldX : 0),
-        y2: this.pos.y2 + (this.pins.y2 === e.pointerId ? e.clientY - oldY : 0)
+        y2: this.pos.y2 + (this.pins.y2 === e.pointerId ? e.clientY - oldY : 0),
+        resizing: true
       };
       oldX = e.clientX;
       oldY = e.clientY;
     });
+    this.pointersDown = this.pointersDown.filter(id => id !== e.pointerId);
+    let refillPointer: number | undefined = this.pointersDown[0];
     this.pins = {
-      x1: this.pins.x1 === e.pointerId ? undefined : this.pins.x1,
-      y1: this.pins.y1 === e.pointerId ? undefined : this.pins.y1,
-      x2: this.pins.x2 === e.pointerId ? undefined : this.pins.x2,
-      y2: this.pins.y2 === e.pointerId ? undefined : this.pins.y2
+      x1: this.pins.x1 === e.pointerId ? refillPointer : this.pins.x1,
+      y1: this.pins.y1 === e.pointerId ? refillPointer : this.pins.y1,
+      x2: this.pins.x2 === e.pointerId ? refillPointer : this.pins.x2,
+      y2: this.pins.y2 === e.pointerId ? refillPointer : this.pins.y2
+    };
+    this.pos = {
+      ...this.pos,
+      resizing:
+        this.pointersDown.length > 0 &&
+        !Object.values(this.pins).reduce((total, current) =>
+          total === current ? total : undefined
+        )
     };
   }
   get rect() {
@@ -203,7 +246,6 @@ export class Window {
     return this._pos;
   }
   set pos(newval: Readonly<WindowPosition>) {
-    console.log("setting pos", newval);
     this._pos = newval;
     let oldComputed = this._computedPosition;
     this._computedPosition = this.computePosition();
@@ -215,8 +257,10 @@ export class Window {
     pos.y !== old.y && this.window.style.setProperty("--y", pos.y + "px");
     pos.w !== old.w && this.window.style.setProperty("--w", pos.w + "px");
     pos.h !== old.h && this.window.style.setProperty("--h", pos.h + "px");
-    // pw && this.animator.style.setProperty("--progress-w", "" + pw); // coming soon
-    // ph && this.animator.style.setProperty("--progress-h", "" + ph); // coming soon
+    pos.pw !== old.pw &&
+      this.animator.style.setProperty("--progress-w", "" + pos.pw);
+    pos.ph !== old.ph &&
+      this.animator.style.setProperty("--progress-h", "" + pos.ph);
     pos.x !== old.x &&
       this.animator.style.setProperty("--origin-x", pos.x + "px");
     pos.y !== old.y &&
@@ -224,11 +268,26 @@ export class Window {
     this._rect = this.window.getBoundingClientRect();
   }
   computePosition(): ComputedWindowPosition {
+    let w = this._pos.x2 - this._pos.x1;
+    let h = this._pos.y2 - this._pos.y1;
+    if (!this.pos.resizing || settings.scaleMode === "dynamic") {
+      this._computedBeforeResize = { w, h };
+      return {
+        x: this._pos.x1,
+        y: this._pos.y1,
+        w,
+        h,
+        pw: 1,
+        ph: 1
+      };
+    }
     return {
       x: this._pos.x1,
       y: this._pos.y1,
-      w: this._pos.x2 - this._pos.x1,
-      h: this._pos.y2 - this._pos.y1
+      w: this._computedBeforeResize.w,
+      h: this._computedBeforeResize.h,
+      pw: w / this._computedBeforeResize.w,
+      ph: h / this._computedBeforeResize.h
     };
   }
 }
