@@ -86,6 +86,12 @@ type ComputedWindowPosition = {
   ph: number;
 };
 
+export class WindowState {
+  setX1() {} // sets the window x1
+  setX2() {} // sets the window x2
+  calculate() {} // calculates new positioning based on changed values
+}
+
 export class Window {
   node: HTMLDivElement;
   animator: HTMLDivElement;

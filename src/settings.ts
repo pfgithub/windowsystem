@@ -1,7 +1,7 @@
 type UIStyle = "dragabove" | "dragbelow" | "fullscreen";
 
 export class Settings {
-  readonly scaleMode: "fast" | "dynamic";
+  scaleMode: "fast" | "dynamic";
   private _uiStyle: UIStyle;
   constructor() {
     this.scaleMode = "fast";

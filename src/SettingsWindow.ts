@@ -12,6 +12,8 @@ export class SettingsWindow extends Window {
   settingsPane: HTMLDivElement;
   dragAboveButton: HTMLButtonElement;
   dragBelowButton: HTMLButtonElement;
+  scaleDynamicButton: HTMLButtonElement;
+  scaleFastButton: HTMLButtonElement;
   constructor() {
     super();
     this.settingsPane = document.createElement("div");
@@ -31,6 +33,24 @@ export class SettingsWindow extends Window {
     this.dragBelowButton.addEventListener(
       "click",
       () => (settings.uiStyle = "dragbelow")
+    );
+
+    this.scaleDynamicButton = document.createElement("button");
+    this.scaleDynamicButton.appendChild(
+      document.createTextNode("Scale Dynamic")
+    );
+    this.settingsPane.appendChild(this.scaleDynamicButton);
+    this.scaleDynamicButton.addEventListener(
+      "click",
+      () => (settings.scaleMode = "dynamic")
+    );
+
+    this.scaleFastButton = document.createElement("button");
+    this.settingsPane.appendChild(this.scaleFastButton);
+    this.scaleFastButton.appendChild(document.createTextNode("Scale Fast"));
+    this.scaleFastButton.addEventListener(
+      "click",
+      () => (settings.scaleMode = "fast")
     );
 
     this.body.appendChild(this.settingsPane);
