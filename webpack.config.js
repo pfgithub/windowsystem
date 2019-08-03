@@ -15,7 +15,7 @@ module.exports = {
         query: {
           presets: ["@babel/preset-typescript"],
           plugins: [
-            "./babel-scss-transform.js",
+            "transform-inline-scss",
             "@babel/plugin-syntax-dynamic-import"
           ]
         }
