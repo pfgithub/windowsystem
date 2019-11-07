@@ -130,7 +130,6 @@ export class Window {
 
     this.titlebar = document.createElement("div");
     this.titlebar.classList.add("titlebar");
-    this.titlebar.appendChild(document.createTextNode("my window"));
     this.window.appendChild(this.titlebar);
 
     this.body = document.createElement("div");
@@ -143,7 +142,6 @@ export class Window {
     this.titlebar.addEventListener("pointerdown", e => {
       this.pinnedDrag(4, e);
     }); // not capture because buttons
-    this.window.addEventListener;
     this.window.addEventListener(
       "pointerdown",
       e => {

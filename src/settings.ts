@@ -4,7 +4,7 @@ export class Settings {
   scaleMode: "fast" | "dynamic";
   private _uiStyle: UIStyle;
   constructor() {
-    this.scaleMode = "fast";
+    this.scaleMode = "dynamic";
     this._uiStyle = "dragabove";
     this.uiStyle = "dragabove";
     // ability to watch settings and see when they change

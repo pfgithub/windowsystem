@@ -16,6 +16,7 @@ export class SettingsWindow extends Window {
   scaleFastButton: HTMLButtonElement;
   constructor() {
     super();
+    this.titlebar.appendChild(document.createTextNode("Settings"));
     this.settingsPane = document.createElement("div");
     this.settingsPane.classList.add("settings");
 
