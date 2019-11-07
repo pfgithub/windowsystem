@@ -22,6 +22,8 @@ util.addStylesheet($scss`
 	grid-template-columns: [left] 80px [minusleftmost] repeat(auto-fill, 80px) [right];
 	grid-gap: 10px;
 	padding: 10px;
+	height:calc(100% - 20px);
+	overflow-y: scroll;
 	& .appgridheader{
 		grid-column: left / right;
 		font-family: sans-serif;
