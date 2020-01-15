@@ -102,11 +102,20 @@ util.addStylesheet($scss`
     transform: scale(var(--progress-w), var(--progress-h));
     cursor: default;
     position:absolute; /*for z-index on ios safari*/
+
+    max-height: 0;
+
     &.drag{
         cursor: move;
     }
     &.scale{
         cursor: resize;
+    }
+
+    &.closing{
+        transition: 0.1s transform, 0.1s opacity;
+        transform: scale(0.8);
+        opacity: 0;
     }
 }
 
