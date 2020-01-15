@@ -115,7 +115,7 @@ util.addStylesheet($scss`
     }
 
     &.closing{
-        transition: 0.1s transform, 0.1s opacity;
+        transition: 0.1s transform ease-in, 0.1s opacity ease-in;
         transform: scale(0.8);
         opacity: 0;
     }
@@ -126,6 +126,10 @@ util.addStylesheet($scss`
     cursor: inherit;
     -webkit-user-select: none;
     user-select: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
     .ui[uistyle=dragabove] &{
         background-color: rgba(255,255,255,0.9);
     }
@@ -189,6 +193,8 @@ export class Window {
   pointersDown: number[];
   borders: { [key in BorderDirection]: HTMLDivElement };
   contentwindow: HTMLDivElement;
+  btnclose: HTMLButtonElement;
+  titletext: HTMLSpanElement;
   constructor() {
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
@@ -230,6 +236,22 @@ export class Window {
 
     this.titlebar = document.createElement("div");
     this.titlebar.classList.add("titlebar");
+
+    this.titletext = document.createElement("span");
+    this.titletext.classList.add("titletext");
+    this.titlebar.appendChild(this.titletext);
+
+    this.btnclose = document.createElement("button");
+    this.btnclose.classList.add("btnclose");
+    this.btnclose.appendChild(document.createTextNode("x"));
+    this.titlebar.appendChild(this.btnclose);
+
+    this.btnclose.addEventListener("pointerdown", e => e.stopPropagation());
+    this.btnclose.addEventListener("click", e => {
+      this.animator.classList.add("closing");
+      setTimeout(() => this.animator.remove(), 200);
+    });
+
     this.contentwindow.appendChild(this.titlebar);
 
     this.body = document.createElement("div");

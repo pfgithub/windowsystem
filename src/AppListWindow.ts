@@ -16,7 +16,7 @@ util.addStylesheet($scss`
 	font-weight: normal;
 	font-style: normal;
 }
-	
+
 .appgrid{
 	display: grid;
 	grid-template-columns: [left] 80px [minusleftmost] repeat(auto-fill, 80px) [right];
@@ -64,7 +64,7 @@ util.addStylesheet($scss`
 		grid-template-columns: repeat(auto-fill, 45px);
 		display: grid;
 		& button{
-			
+
 			font-family: 'icons';
 		}
 	}
@@ -80,7 +80,7 @@ util.addStylesheet($scss`
 
 type Header = { title: string; subtitle: string };
 type App = { name: string; description: string; icon: string; url: string };
-type AppListItem = { type: "App" } & App | { type: "Header" } & Header;
+type AppListItem = ({ type: "App" } & App) | ({ type: "Header" } & Header);
 
 function createButton(app: App): Node[] {
   let container = document.createElement("a");
@@ -156,7 +156,7 @@ function displayModeHeader(
 export class AppListWindow extends Window {
   constructor(appList: AppListItem[]) {
     super();
-    this.titlebar.appendChild(document.createTextNode("pfg.pw"));
+    this.titletext.appendChild(document.createTextNode("pfg.pw"));
     let appGrid = document.createElement("div");
     appGrid.classList.add("appgrid");
 

@@ -5,7 +5,7 @@ import { Window } from "./Window";
 const $scss = util.css;
 
 util.addStylesheet($scss`
-	
+
 `);
 
 export class SettingsWindow extends Window {
@@ -16,7 +16,7 @@ export class SettingsWindow extends Window {
   scaleFastButton: HTMLButtonElement;
   constructor() {
     super();
-    this.titlebar.appendChild(document.createTextNode("Settings"));
+    this.titletext.appendChild(document.createTextNode("Settings"));
     this.settingsPane = document.createElement("div");
     this.settingsPane.classList.add("settings");
 
