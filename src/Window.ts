@@ -24,6 +24,7 @@ util.addStylesheet($scss`
     .window{
         display: grid;
         max-height: 100%;
+        height: 100%;
         .ui[uistyle=dragabove] &{
             border-radius: 6px;
             overflow: hidden;
