@@ -29,6 +29,14 @@ class AppBuilder extends App{
 	}
 }
 
+function App(){
+// dmf
+return <Window>
+<Titlebar></Titlebar>
+<Body></Body>
+</Window>
+}
+
 
 ```
 
