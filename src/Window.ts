@@ -5,26 +5,93 @@ import { WindowManager } from "./WindowManager";
 const $scss = util.css;
 
 util.addStylesheet($scss`
-    
-.window{
+
+:root{
+    --border-width: 5px;
+    --n-border-width: -5px;
+}
+
+.outerwindow{
     transform:
         translate( var(--x), var(--y) );
     top: 0;
     left: 0;
     width: var(--w);
     height: var(--h);
-    
-    position: absolute;
+
+    position: relative;
     display: grid;
-    
-    .ui[uistyle=dragabove] &{
-        border-radius: 6px;
-        overflow: hidden;
-    	grid-template-rows: max-content 1fr;
-        box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+
+    .window{
+        .ui[uistyle=dragabove] &{
+            border-radius: 6px;
+            overflow: hidden;
+        	grid-template-rows: max-content 1fr;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+        }
+        .ui[uistyle=dragbelow] &{
+        	grid-template-rows: 1fr max-content;
+        }
     }
-    .ui[uistyle=dragbelow] &{
-    	grid-template-rows: 1fr max-content;
+
+    .border{
+        position: absolute;
+        &.ul{
+            top: var(--n-border-width);
+            left: var(--n-border-width);
+            width: var(--border-width);
+            height: var(--border-width);
+            cursor: nwse-resize;
+        }
+        &.u{
+            top: var(--n-border-width);
+            left: 0;
+            right: 0;
+            height: var(--border-width);
+            cursor: ns-resize;
+        }
+        &.ur{
+            top: var(--n-border-width);
+            right: var(--n-border-width);
+            width: var(--border-width);
+            height: var(--border-width);
+            cursor: nesw-resize;
+        }
+        &.l{
+            top: 0;
+            bottom: 0;
+            left: var(--n-border-width);
+            width: var(--border-width);
+            cursor: ew-resize;
+        }
+        &.r{
+            top: 0;
+            bottom: 0;
+            right: var(--n-border-width);
+            width: var(--border-width);
+            cursor: ew-resize;
+        }
+        &.dl{
+            bottom: var(--n-border-width);
+            height: var(--border-width);
+            left: var(--n-border-width);
+            width: var(--border-width);
+            cursor: nesw-resize;
+        }
+        &.d{
+            bottom: var(--n-border-width);
+            height: var(--border-width);
+            left: 0;
+            right: 0;
+            cursor: ns-resize;
+        }
+        &.dr{
+            bottom: var(--n-border-width);
+            height: var(--border-width);
+            right: var(--n-border-width);
+            width: var(--border-width);
+            cursor: nwse-resize;
+        }
     }
 }
 
@@ -92,6 +159,9 @@ export class WindowState {
   calculate() {} // calculates new positioning based on changed values
 }
 
+let borderDirections = ["ul", "u", "ur", "l", "r", "dl", "d", "dr"] as const;
+type BorderDirection = typeof borderDirections[number];
+
 export class Window {
   node: HTMLDivElement;
   animator: HTMLDivElement;
@@ -106,6 +176,8 @@ export class Window {
   _pos: WindowPosition;
   pins: { x1?: number; y1?: number; x2?: number; y2?: number };
   pointersDown: number[];
+  borders: { [key in BorderDirection]: HTMLDivElement };
+  contentwindow: HTMLDivElement;
   constructor() {
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
@@ -113,7 +185,24 @@ export class Window {
     this.isDragging = false;
 
     this.window = document.createElement("div");
-    this.window.classList.add("window");
+    this.window.classList.add("outerwindow");
+
+    this.contentwindow = document.createElement("div");
+    this.contentwindow.classList.add("window");
+
+    this.borders = {} as any;
+    borderDirections.forEach(borderdir => {
+      let border = document.createElement("div");
+      border.classList.add("border");
+      border.classList.add(borderdir);
+      this.window.appendChild(border);
+      this.borders[borderdir] = border;
+
+      border.addEventListener("pointerdown", e => {
+        this.bringToFront();
+        this.pinnedDrag(borderdir, e);
+      });
+    });
 
     this.pins = {};
     this.pointersDown = [];
@@ -130,11 +219,12 @@ export class Window {
 
     this.titlebar = document.createElement("div");
     this.titlebar.classList.add("titlebar");
-    this.window.appendChild(this.titlebar);
+    this.contentwindow.appendChild(this.titlebar);
 
     this.body = document.createElement("div");
     this.body.classList.add("body");
-    this.window.appendChild(this.body);
+    this.contentwindow.appendChild(this.body);
+    this.window.appendChild(this.contentwindow);
     this.animator.appendChild(this.window);
 
     this.node = this.animator;
@@ -170,7 +260,7 @@ export class Window {
   // redo these:
   // drag event = move top left bottom right based on cursor pos
   // resize event = move bototm right based on cursor pos. two resizes at once = move multiple
-  async pinnedDrag(pins: number, e: PointerEvent) {
+  async pinnedDrag(pins: number | BorderDirection, e: PointerEvent) {
     e.preventDefault();
     e.stopPropagation();
     const rect = this.window.getBoundingClientRect();
@@ -202,17 +292,28 @@ export class Window {
 
     e.clientX - rect.left;
 
-    this.pointersDown.length >= 1 || pins === 2
-      ? (this.pins = {
-          ...this.pins,
-          ...expectedPins
-        })
-      : (this.pins = {
-          x1: e.pointerId,
-          y1: e.pointerId,
-          x2: e.pointerId,
-          y2: e.pointerId
-        });
+    if (typeof pins === "number") {
+      this.pointersDown.length >= 1 || pins === 2
+        ? (this.pins = {
+            ...this.pins,
+            ...expectedPins
+          })
+        : (this.pins = {
+            x1: e.pointerId,
+            y1: e.pointerId,
+            x2: e.pointerId,
+            y2: e.pointerId
+          });
+    } else {
+      let has = (pn: string, l: string) =>
+        pins.indexOf(l) > -1 ? { [pn]: e.pointerId } : {};
+      this.pins = {
+        ...has("x1", "l"),
+        ...has("x2", "r"),
+        ...has("y1", "u"),
+        ...has("y2", "d")
+      };
+    }
     this.pointersDown.push(e.pointerId);
 
     await util.startDragWatcher(e, (e: PointerEvent) => {
