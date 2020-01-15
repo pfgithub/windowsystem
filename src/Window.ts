@@ -20,9 +20,10 @@ util.addStylesheet($scss`
     height: var(--h);
 
     position: relative;
-    display: grid;
 
     .window{
+        display: grid;
+        max-height: 100%;
         .ui[uistyle=dragabove] &{
             border-radius: 6px;
             overflow: hidden;
