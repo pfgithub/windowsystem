@@ -11,31 +11,35 @@ util.addStylesheet($scss`
 
 export class SettingsWindow extends Window {
   settingsPane: HTMLDivElement;
-  dragAboveButton: HTMLButtonElement;
-  dragBelowButton: HTMLButtonElement;
+  dragModeSelect: HTMLSelectElement;
   scaleDynamicButton: HTMLButtonElement;
   scaleFastButton: HTMLButtonElement;
+  removalHandlers: (() => void)[];
   constructor() {
     super();
+    this.removalHandlers = [];
+
     this.titletext.appendChild(document.createTextNode("Settings"));
     this.settingsPane = document.createElement("div");
     this.settingsPane.classList.add("settings");
 
-    this.dragAboveButton = document.createElement("button");
-    this.dragAboveButton.appendChild(document.createTextNode("Drag Above"));
-    this.settingsPane.appendChild(this.dragAboveButton);
-    this.dragAboveButton.addEventListener(
-      "click",
-      () => (settings.uiStyle = "dragabove")
-    );
+    this.dragModeSelect = document.createElement("select");
+    this.settingsPane.appendChild(this.dragModeSelect);
 
-    this.dragBelowButton = document.createElement("button");
-    this.settingsPane.appendChild(this.dragBelowButton);
-    this.dragBelowButton.appendChild(document.createTextNode("Drag Below"));
-    this.dragBelowButton.addEventListener(
-      "click",
-      () => (settings.uiStyle = "dragbelow")
-    );
+    (["dragabove", "dragbelow"] as const).map(it => {
+      let option = document.createElement("option");
+      option.value = it;
+      option.appendChild(document.createTextNode(it));
+      this.dragModeSelect.appendChild(option);
+    });
+    this.dragModeSelect.addEventListener("input", () => {
+      settings.uiStyle = this.dragModeSelect.value as any;
+    });
+    let onch = () => {
+      this.dragModeSelect.value = settings.uiStyle;
+    };
+    onch();
+    this.removalHandlers.push(settings.watch("uiStyle", onch));
 
     this.scaleDynamicButton = document.createElement("button");
     this.scaleDynamicButton.appendChild(
@@ -61,5 +65,10 @@ export class SettingsWindow extends Window {
     testbtn.addEventListener("click", () => wm.addWindow(new SettingsWindow()));
 
     this.body.appendChild(this.settingsPane);
+  }
+
+  onClose() {
+    // nothing to do
+    this.removalHandlers.forEach(rh => rh());
   }
 }

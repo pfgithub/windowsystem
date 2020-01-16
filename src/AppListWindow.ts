@@ -178,4 +178,7 @@ export class AppListWindow extends Window {
 
     this.body.appendChild(appGrid);
   }
+  onClose() {
+    // nothing to do
+  }
 }

@@ -109,6 +109,7 @@ util.addStylesheet($scss`
 
     &.drag{
         cursor: move;
+        opacity: 0.5;
     }
     &.scale{
         cursor: resize;
@@ -184,7 +185,7 @@ export class WindowState {
 let borderDirections = ["ul", "u", "ur", "l", "r", "dl", "d", "dr"] as const;
 type BorderDirection = typeof borderDirections[number];
 
-export class Window {
+export abstract class Window {
   node: HTMLDivElement;
   animator: HTMLDivElement;
   isDragging: boolean; // remove
@@ -264,6 +265,7 @@ export class Window {
     this.btnclose.addEventListener("pointerdown", e => e.stopPropagation());
     this.btnclose.addEventListener("click", e => {
       this.animator.classList.add("closing");
+      this.onClose();
       setTimeout(() => this.animator.remove(), 200);
     });
 
@@ -305,6 +307,7 @@ export class Window {
   bringToFront() {
     this.manager && this.manager.bringToFront(this);
   }
+  abstract onClose(): void;
   // redo these:
   // drag event = move top left bottom right based on cursor pos
   // resize event = move bototm right based on cursor pos. two resizes at once = move multiple
