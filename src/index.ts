@@ -60,7 +60,7 @@ refresh.addEventListener("click", () => {
 });
 fullscreenFix.appendChild(refresh);
 
-const wm = new WindowManager();
+export const wm = new WindowManager();
 
 // for (let i = 0; i < 10; i++) {
 //   let window = new Window();

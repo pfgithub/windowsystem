@@ -114,11 +114,18 @@ util.addStylesheet($scss`
         cursor: resize;
     }
 
-    &.closing{
-        transition: 0.1s transform ease-in, 0.1s opacity ease-in;
-        transform: scale(0.8);
-        opacity: 0;
-    }
+        &.closing{
+            transition: 0.1s transform ease-in, 0.1s opacity ease-in;
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        &.opening{
+            transition: 0.1s transform ease-in, 0.1s opacity ease-in;
+            &.openinit{
+                transform: scale(0.8);
+                opacity: 0;
+            }
+        }
 }
 
 .titlebar{
@@ -198,6 +205,14 @@ export class Window {
   constructor() {
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
+    this.animator.classList.add("opening");
+    this.animator.classList.add("openinit");
+    window.requestAnimationFrame(() =>
+      window.requestAnimationFrame(() =>
+        this.animator.classList.remove("openinit")
+      )
+    );
+    setTimeout(() => this.animator.classList.remove("opening"), 200);
 
     this.isDragging = false;
 

@@ -1,6 +1,7 @@
 import * as util from "./utils";
 import { settings } from "./settings";
 import { Window } from "./Window";
+import { wm } from "./index";
 
 const $scss = util.css;
 
@@ -53,6 +54,11 @@ export class SettingsWindow extends Window {
       "click",
       () => (settings.scaleMode = "fast")
     );
+
+    let testbtn = document.createElement("button");
+    this.settingsPane.appendChild(testbtn);
+    testbtn.appendChild(document.createTextNode("Open new window"));
+    testbtn.addEventListener("click", () => wm.addWindow(new SettingsWindow()));
 
     this.body.appendChild(this.settingsPane);
   }
