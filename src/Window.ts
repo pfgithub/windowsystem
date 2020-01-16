@@ -424,8 +424,12 @@ export abstract class Window {
     this._rect = this.window.getBoundingClientRect();
   }
   computePosition(): ComputedWindowPosition {
-    let w = this._pos.x2 - this._pos.x1;
-    let h = this._pos.y2 - this._pos.y1;
+    let w = Math.max(this._pos.x2 - this._pos.x1, 100);
+    let h = Math.max(this._pos.y2 - this._pos.y1, 100);
+    if (!this.pos.resizing) {
+      this._pos.x2 = this._pos.x1 + w;
+      this._pos.y2 = this._pos.y1 + h;
+    }
     if (!this.pos.resizing || settings.scaleMode === "dynamic") {
       this._computedBeforeResize = { w, h };
       return {
