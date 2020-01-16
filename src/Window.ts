@@ -119,6 +119,7 @@ util.addStylesheet($scss`
             transition: 0.1s transform ease-in, 0.1s opacity ease-in;
             transform: scale(0.8);
             opacity: 0;
+            pointer-events: none;
         }
         &.opening{
             transition: 0.1s transform ease-in, 0.1s opacity ease-in;

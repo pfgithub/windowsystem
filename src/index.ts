@@ -60,6 +60,10 @@ refresh.addEventListener("click", () => {
 });
 fullscreenFix.appendChild(refresh);
 
+let addwindow = document.createElement("button");
+addwindow.appendChild(document.createTextNode("Add Window"));
+fullscreenFix.appendChild(addwindow);
+
 export const wm = new WindowManager();
 
 // for (let i = 0; i < 10; i++) {
@@ -121,3 +125,7 @@ wm.addWindow(
 
 fullscreenFix.appendChild(wm.node);
 document.body.appendChild(fullscreenFix);
+
+addwindow.addEventListener("click", () => {
+  wm.addWindow(new SettingsWindow());
+});
