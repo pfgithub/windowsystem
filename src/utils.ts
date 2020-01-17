@@ -33,6 +33,9 @@ export function getButton(e: PointerEvent) {
 export function startDragWatcher(
     startEvent: PointerEvent,
     cb: (e: PointerEvent) => void,
+    opts: { trailing?: boolean } = {},
+    // in trailing mode, emit events to follow a bit behind mouse
+    // (every animation frame, move 1/4 the distance to the mouse until there is no distance to move, then snap to whole pixels)
 ) /*: Promise<e: mouseupevent>*/ {
     return new Promise(resolve => {
         let moveListener = (e: PointerEvent) => {

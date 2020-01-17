@@ -114,20 +114,19 @@ util.addStylesheet($scss`
     &.scale{
         cursor: resize;
     }
-
-        &.closing{
-            transition: 0.1s transform ease-in, 0.1s opacity ease-in;
+    &.closing{
+        transition: 0.1s transform ease-in, 0.1s opacity ease-in;
+        transform: scale(0.8);
+        opacity: 0;
+        pointer-events: none;
+    }
+    &.opening{
+        transition: 0.1s transform ease-in, 0.1s opacity ease-in;
+        &.openinit{
             transform: scale(0.8);
             opacity: 0;
-            pointer-events: none;
         }
-        &.opening{
-            transition: 0.1s transform ease-in, 0.1s opacity ease-in;
-            &.openinit{
-                transform: scale(0.8);
-                opacity: 0;
-            }
-        }
+    }
 }
 
 .titlebar{
@@ -398,25 +397,29 @@ export class Window {
         }
         this.pointersDown.push(e.pointerId);
 
-        await util.startDragWatcher(e, (e: PointerEvent) => {
-            this.pos = {
-                x1:
-                    this.pos.x1 +
-                    (this.pins.x1 === e.pointerId ? e.clientX - oldX : 0),
-                y1:
-                    this.pos.y1 +
-                    (this.pins.y1 === e.pointerId ? e.clientY - oldY : 0),
-                x2:
-                    this.pos.x2 +
-                    (this.pins.x2 === e.pointerId ? e.clientX - oldX : 0),
-                y2:
-                    this.pos.y2 +
-                    (this.pins.y2 === e.pointerId ? e.clientY - oldY : 0),
-                resizing: true,
-            };
-            oldX = e.clientX;
-            oldY = e.clientY;
-        });
+        await util.startDragWatcher(
+            e,
+            (e: PointerEvent) => {
+                this.pos = {
+                    x1:
+                        this.pos.x1 +
+                        (this.pins.x1 === e.pointerId ? e.clientX - oldX : 0),
+                    y1:
+                        this.pos.y1 +
+                        (this.pins.y1 === e.pointerId ? e.clientY - oldY : 0),
+                    x2:
+                        this.pos.x2 +
+                        (this.pins.x2 === e.pointerId ? e.clientX - oldX : 0),
+                    y2:
+                        this.pos.y2 +
+                        (this.pins.y2 === e.pointerId ? e.clientY - oldY : 0),
+                    resizing: true,
+                };
+                oldX = e.clientX;
+                oldY = e.clientY;
+            },
+            { trailing: settings.dragMode === "trailing" },
+        );
         this.pointersDown = this.pointersDown.filter(id => id !== e.pointerId);
         let refillPointer: number | undefined = this.pointersDown[0];
         this.pins = {
