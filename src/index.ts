@@ -4,6 +4,7 @@ import { Settings } from "./apps/Settings";
 import { AppList } from "./apps/AppList";
 import { WindowManager } from "./WindowManager";
 import { settings } from "./settings";
+import { Calculator } from "./apps/Calculator";
 
 if ("PointerEvent" in window) {
 } else {
@@ -122,6 +123,8 @@ new AppList(wm, [
 
 fullscreenFix.appendChild(wm.node);
 document.body.appendChild(fullscreenFix);
+
+Calculator(wm);
 
 addwindow.addEventListener("click", () => {
     new Settings(wm);

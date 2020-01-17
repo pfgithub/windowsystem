@@ -1,7 +1,6 @@
 import * as util from "../utils";
 import { settings } from "../settings";
 import { Window } from "../Window";
-import { wm } from "../index";
 import { WindowManager } from "../WindowManager";
 
 const $scss = util.css;

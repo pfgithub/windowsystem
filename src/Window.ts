@@ -154,7 +154,6 @@ util.addStylesheet($scss`
     .ui[uistyle=dragbelow] &{
         border-radius: 6px;
         box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
-        	grid-template-rows: 0 1fr;
     }
 }
 
