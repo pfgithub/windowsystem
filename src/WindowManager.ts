@@ -26,10 +26,13 @@ export class WindowManager {
   }
   addWindow(window: Window) {
     this.windows.push(window);
-    window.manager = this;
 
     window.node.style.zIndex = "" + this.zIndex++;
     this.windowlist.appendChild(window.node);
+  }
+  removeWindow(window: Window) {
+	  this.windows = this.windows.filter(w => w !== window);
+	  this.windowlist.removeChild(window.node);
   }
   bringToFront(window: Window) {
     if (this.windows[this.windows.length - 1] === window) {

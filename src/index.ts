@@ -71,61 +71,59 @@ export const wm = new WindowManager();
 //   wm.addWindow(window);
 // }
 // wm.addWindow(new BrowserWindow());
-wm.addWindow(new SettingsWindow());
+new SettingsWindow(wm);
 
-wm.addWindow(
-  new AppListWindow([
-    {
-      type: "App",
-      name: "GitHub",
-      icon:
-        "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-      description: "my github page.",
-      url: "https://github.com/pfgithub"
-    },
-    { type: "Header", title: "Projects", subtitle: "" },
-    {
-      type: "App",
-      name: "ScPL",
-      icon: "https://scpl.dev/assets/favicon/apple-touch-icon.png",
-      description:
-        "programming language that compiles to the iOS Visual Scripting tool, Shortcuts.",
-      url: "https://scpl.dev"
-    },
-    {
-      type: "App",
-      name: "interpunctbot",
-      icon:
-        "https://cdn.discordapp.com/avatars/433078185555656705/bcc3d8799adc00afd50b9c3168b4743e.png?size=128",
-      description:
-        "a discord bot that does a few things like adding spaces to channel names and letting mods rank people with emojis. a new version, ipv3, is currently being worked on that will improve the user experience and add a few new features.",
-      url: "https://interpunct.info"
-    },
-    { type: "Header", title: "Other Things", subtitle: "" },
-    {
-      type: "App",
-      name: "electron-music-player",
-      icon:
-        "https://raw.githubusercontent.com/pfgithub/electron-music-player/master/.github/demo-2019-06-30_21-51.png",
-      description:
-        "a simple, lightweight* music player that shows lyrics of the current song (* as lightweight as an electron project can be, which is not very)",
-      url: "https://github.com/pfgithub/electron-music-player"
-    },
-    {
-      type: "App",
-      name: "sitepages",
-      icon:
-        "https://raw.githubusercontent.com/pfgithub/electron-music-player/master/.github/demo-2019-06-30_21-51.png",
-      description:
-        "quickly hacked together interfaces to quickly hacked together javascript code.",
-      url: "https://pfg.pw/sitepages"
-    }
-  ])
-);
+new AppListWindow(wm, [
+  {
+    type: "App",
+    name: "GitHub",
+    icon:
+      "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+    description: "my github page.",
+    url: "https://github.com/pfgithub"
+  },
+  { type: "Header", title: "Projects", subtitle: "" },
+  {
+    type: "App",
+    name: "ScPL",
+    icon: "https://scpl.dev/assets/favicon/apple-touch-icon.png",
+    description:
+      "programming language that compiles to the iOS Visual Scripting tool, Shortcuts.",
+    url: "https://scpl.dev"
+  },
+  {
+    type: "App",
+    name: "interpunctbot",
+    icon:
+      "https://cdn.discordapp.com/avatars/433078185555656705/bcc3d8799adc00afd50b9c3168b4743e.png?size=128",
+    description:
+      "a discord bot that does a few things like adding spaces to channel names and letting mods rank people with emojis. a new version, ipv3, is currently being worked on that will improve the user experience and add a few new features.",
+    url: "https://interpunct.info"
+  },
+  { type: "Header", title: "Other Things", subtitle: "" },
+  {
+    type: "App",
+    name: "electron-music-player",
+    icon:
+      "https://raw.githubusercontent.com/pfgithub/electron-music-player/master/.github/demo-2019-06-30_21-51.png",
+    description:
+      "a simple, lightweight* music player that shows lyrics of the current song (* as lightweight as an electron project can be, which is not very)",
+    url: "https://github.com/pfgithub/electron-music-player"
+  },
+  {
+    type: "App",
+    name: "sitepages",
+    icon:
+      "https://raw.githubusercontent.com/pfgithub/electron-music-player/master/.github/demo-2019-06-30_21-51.png",
+    description:
+      "quickly hacked together interfaces to quickly hacked together javascript code.",
+    url: "https://pfg.pw/sitepages"
+  }
+]);
 
 fullscreenFix.appendChild(wm.node);
 document.body.appendChild(fullscreenFix);
 
 addwindow.addEventListener("click", () => {
-  wm.addWindow(new SettingsWindow());
+  new SettingsWindow(wm);
 });

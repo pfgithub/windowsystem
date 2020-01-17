@@ -1,6 +1,7 @@
 import * as util from "./utils";
 import { settings } from "./settings";
 import { Window } from "./Window";
+import { WindowManager } from "./WindowManager";
 
 const $scss = util.css;
 
@@ -153,10 +154,11 @@ function displayModeHeader(
   return [container];
 }
 
-export class AppListWindow extends Window {
-  constructor(appList: AppListItem[]) {
-    super();
-    this.titletext.appendChild(document.createTextNode("pfg.pw"));
+export class AppListWindow {
+  constructor(wm: WindowManager, appList: AppListItem[]) {
+    let window = new Window(wm);
+
+    window.titletext.appendChild(document.createTextNode("pfg.pw"));
     let appGrid = document.createElement("div");
     appGrid.classList.add("appgrid");
 
@@ -176,9 +178,8 @@ export class AppListWindow extends Window {
       createAppGridItem(app).forEach(n => appGrid.appendChild(n))
     );
 
-    this.body.appendChild(appGrid);
-  }
-  onClose() {
-    // nothing to do
+    window.body.appendChild(appGrid);
+
+    window.open();
   }
 }

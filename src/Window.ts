@@ -186,35 +186,33 @@ export class WindowState {
 let borderDirections = ["ul", "u", "ur", "l", "r", "dl", "d", "dr"] as const;
 type BorderDirection = typeof borderDirections[number];
 
-export abstract class Window {
+export class Window {
   node: HTMLDivElement;
   animator: HTMLDivElement;
   isDragging: boolean; // remove
   window: HTMLDivElement;
   titlebar: HTMLDivElement;
   body: HTMLDivElement;
-  manager?: WindowManager;
+  manager: WindowManager;
   _rect?: ClientRect | DOMRect;
   _computedPosition: ComputedWindowPosition;
   _computedBeforeResize: { w: number; h: number };
   _pos: WindowPosition;
+  _onevent: { [key: string]: (() => void)[] };
   pins: { x1?: number; y1?: number; x2?: number; y2?: number };
   pointersDown: number[];
   borders: { [key in BorderDirection]: HTMLDivElement };
   contentwindow: HTMLDivElement;
   btnclose: HTMLButtonElement;
   titletext: HTMLSpanElement;
-  constructor() {
+  isOpen: boolean;
+  constructor(manager: WindowManager) {
+    this.manager = manager;
+    this._onevent = {};
+    this.isOpen = false;
+
     this.animator = document.createElement("div");
     this.animator.classList.add("animator");
-    this.animator.classList.add("opening");
-    this.animator.classList.add("openinit");
-    window.requestAnimationFrame(() =>
-      window.requestAnimationFrame(() =>
-        this.animator.classList.remove("openinit")
-      )
-    );
-    setTimeout(() => this.animator.classList.remove("opening"), 200);
 
     this.isDragging = false;
 
@@ -265,9 +263,7 @@ export abstract class Window {
 
     this.btnclose.addEventListener("pointerdown", e => e.stopPropagation());
     this.btnclose.addEventListener("click", e => {
-      this.animator.classList.add("closing");
-      this.onClose();
-      setTimeout(() => this.animator.remove(), 200);
+      this.close();
     });
 
     this.contentwindow.appendChild(this.titlebar);
@@ -306,9 +302,36 @@ export abstract class Window {
     );
   }
   bringToFront() {
-    this.manager && this.manager.bringToFront(this);
+    this.isOpen && this.manager.bringToFront(this);
   }
-  abstract onClose(): void;
+  open() {
+    if (this.isOpen) throw new Error("already open");
+    this.animator.classList.remove("closing");
+    this.animator.classList.add("opening");
+    this.animator.classList.add("openinit");
+    this.manager.addWindow(this);
+    window.requestAnimationFrame(() =>
+      window.requestAnimationFrame(() =>
+        this.animator.classList.remove("openinit")
+      )
+    );
+    setTimeout(() => this.animator.classList.remove("opening"), 200);
+    this.isOpen = true;
+  }
+  close() {
+    if (!this.isOpen) throw new Error("already closed");
+    this.animator.classList.add("closing");
+    this.emit("close");
+    setTimeout(() => this.manager.removeWindow(this), 200);
+    this.isOpen = false;
+  }
+  on(ev: "close", cb: () => void) {
+    if (!this._onevent[ev]) this._onevent[ev] = [];
+    this._onevent[ev].push(cb);
+  }
+  emit(ev: "close") {
+    this._onevent[ev] && this._onevent[ev].map(c => c());
+  }
   // redo these:
   // drag event = move top left bottom right based on cursor pos
   // resize event = move bototm right based on cursor pos. two resizes at once = move multiple

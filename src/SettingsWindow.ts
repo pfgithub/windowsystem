@@ -2,6 +2,7 @@ import * as util from "./utils";
 import { settings } from "./settings";
 import { Window } from "./Window";
 import { wm } from "./index";
+import { WindowManager } from "./WindowManager";
 
 const $scss = util.css;
 
@@ -9,17 +10,20 @@ util.addStylesheet($scss`
 
 `);
 
-export class SettingsWindow extends Window {
+export class SettingsWindow {
+  window: Window;
+
   settingsPane: HTMLDivElement;
   dragModeSelect: HTMLSelectElement;
   scaleDynamicButton: HTMLButtonElement;
   scaleFastButton: HTMLButtonElement;
   removalHandlers: (() => void)[];
-  constructor() {
-    super();
+  constructor(wm: WindowManager) {
+    this.window = new Window(wm);
+
     this.removalHandlers = [];
 
-    this.titletext.appendChild(document.createTextNode("Settings"));
+    this.window.titletext.appendChild(document.createTextNode("Settings"));
     this.settingsPane = document.createElement("div");
     this.settingsPane.classList.add("settings");
 
@@ -62,9 +66,12 @@ export class SettingsWindow extends Window {
     let testbtn = document.createElement("button");
     this.settingsPane.appendChild(testbtn);
     testbtn.appendChild(document.createTextNode("Open new window"));
-    testbtn.addEventListener("click", () => wm.addWindow(new SettingsWindow()));
+    testbtn.addEventListener("click", () => new SettingsWindow(wm));
 
-    this.body.appendChild(this.settingsPane);
+    this.window.body.appendChild(this.settingsPane);
+
+    this.window.open();
+    this.window.on("close", () => this.onClose());
   }
 
   onClose() {
