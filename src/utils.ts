@@ -36,6 +36,7 @@ export function startDragWatcher(
     opts: { trailing?: boolean } = {},
     // in trailing mode, emit events to follow a bit behind mouse
     // (every animation frame, move 1/4 the distance to the mouse until there is no distance to move, then snap to whole pixels)
+    // unfortunately, I think inertia (https://greensock.com/inertia/) looks better.
 ) /*: Promise<e: mouseupevent>*/ {
     return new Promise(resolve => {
         let moveListener = (e: PointerEvent) => {
