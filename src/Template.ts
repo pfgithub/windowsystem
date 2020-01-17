@@ -7,5 +7,5 @@ util.addStylesheet($scss`
 `);
 
 export class Template {
-  constructor() {}
+    constructor() {}
 }

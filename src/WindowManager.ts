@@ -13,36 +13,36 @@ util.addStylesheet($scss`
 `);
 
 export class WindowManager {
-  windowlist: HTMLDivElement;
-  node: HTMLDivElement;
-  windows: Window[];
-  zIndex: number;
-  constructor() {
-    this.windowlist = document.createElement("div");
-    this.windowlist.classList.add("windowlist");
-    this.node = this.windowlist;
-    this.windows = [];
-    this.zIndex = 0;
-  }
-  addWindow(window: Window) {
-    this.windows.push(window);
-
-    window.node.style.zIndex = "" + this.zIndex++;
-    this.windowlist.appendChild(window.node);
-  }
-  removeWindow(window: Window) {
-	  this.windows = this.windows.filter(w => w !== window);
-	  this.windowlist.removeChild(window.node);
-  }
-  bringToFront(window: Window) {
-    if (this.windows[this.windows.length - 1] === window) {
-      return;
+    windowlist: HTMLDivElement;
+    node: HTMLDivElement;
+    windows: Window[];
+    zIndex: number;
+    constructor() {
+        this.windowlist = document.createElement("div");
+        this.windowlist.classList.add("windowlist");
+        this.node = this.windowlist;
+        this.windows = [];
+        this.zIndex = 0;
     }
-    this.windows = this.windows.filter(w => w !== window);
-    this.windows.push(window);
+    addWindow(window: Window) {
+        this.windows.push(window);
 
-    window.node.style.zIndex = "" + this.zIndex++;
+        window.node.style.zIndex = "" + this.zIndex++;
+        this.windowlist.appendChild(window.node);
+    }
+    removeWindow(window: Window) {
+        this.windows = this.windows.filter(w => w !== window);
+        this.windowlist.removeChild(window.node);
+    }
+    bringToFront(window: Window) {
+        if (this.windows[this.windows.length - 1] === window) {
+            return;
+        }
+        this.windows = this.windows.filter(w => w !== window);
+        this.windows.push(window);
 
-    // this.windowlist.appendChild(window.node);
-  }
+        window.node.style.zIndex = "" + this.zIndex++;
+
+        // this.windowlist.appendChild(window.node);
+    }
 }
