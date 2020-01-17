@@ -7,8 +7,8 @@ const $scss = util.css;
 util.addStylesheet($scss`
 
 :root{
-    --border-width: 5px;
-    --n-border-width: -5px;
+    --border-width: 10px;
+    --n-border-width: -10px;
 }
 
 .outerwindow{
