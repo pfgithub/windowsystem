@@ -155,6 +155,20 @@ util.addStylesheet($scss`
         box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
     }
 }
+button{
+    border: 0;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    &.btnclose {
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
 
 `);
 
