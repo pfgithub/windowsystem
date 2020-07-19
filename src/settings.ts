@@ -8,11 +8,13 @@ export class Settings {
     private _uiStyle!: UIStyle;
     private _watchers: { [key: string]: (() => void)[] };
     private _dragMode!: "trailing" | "full";
+    private _buttonStyle: "1" | "2";
     constructor() {
         this._watchers = {};
         this.scaleMode = "dynamic";
         this.uiStyle = "dragabove";
         this.dragMode = "trailing";
+        this.buttonStyle = "1";
         // ability to watch settings and see when they change
     }
     set uiStyle(newStyle: UIStyle) {
@@ -37,6 +39,14 @@ export class Settings {
     }
     get dragMode() {
         return this._dragMode;
+    }
+    set buttonStyle(newButtonStyle: "1" | "2") {
+        this._buttonStyle = newButtonStyle;
+        document.body.setAttribute("buttonstyle", this._buttonStyle);
+        this.emit("buttonStyle");
+    }
+    get buttonStyle() {
+        return this._buttonStyle;
     }
     emit(event: SettingsEvent) {
         this._watchers[event] && this._watchers[event].forEach(q => q());

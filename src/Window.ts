@@ -6,14 +6,13 @@ const $scss = util.css;
 
 util.addStylesheet($scss`
 
-:root{
+:root {
     --border-width: 10px;
     --n-border-width: -10px;
 }
 
-.outerwindow{
-    transform:
-        translate( var(--x), var(--y) );
+.outerwindow {
+    transform: translate(var(--x), var(--y));
     top: 0;
     left: 0;
     width: var(--w);
@@ -21,73 +20,73 @@ util.addStylesheet($scss`
 
     position: relative;
 
-    .window{
+    .window {
         display: grid;
         max-height: 100%;
         height: 100%;
-        .ui[uistyle=dragabove] &{
+        .ui[uistyle="dragabove"] & {
             border-radius: 6px;
             overflow: hidden;
-        	grid-template-rows: max-content 1fr;
-            box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+            grid-template-rows: max-content 1fr;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
         }
-        .ui[uistyle=dragbelow] &{
-        	grid-template-rows: 1fr max-content;
+        .ui[uistyle="dragbelow"] & {
+            grid-template-rows: 1fr max-content;
         }
     }
 
-    .border{
+    .border {
         position: absolute;
-        &.ul{
+        &.ul {
             top: var(--n-border-width);
             left: var(--n-border-width);
             width: var(--border-width);
             height: var(--border-width);
             cursor: nwse-resize;
         }
-        &.u{
+        &.u {
             top: var(--n-border-width);
             left: 0;
             right: 0;
             height: var(--border-width);
             cursor: ns-resize;
         }
-        &.ur{
+        &.ur {
             top: var(--n-border-width);
             right: var(--n-border-width);
             width: var(--border-width);
             height: var(--border-width);
             cursor: nesw-resize;
         }
-        &.l{
+        &.l {
             top: 0;
             bottom: 0;
             left: var(--n-border-width);
             width: var(--border-width);
             cursor: ew-resize;
         }
-        &.r{
+        &.r {
             top: 0;
             bottom: 0;
             right: var(--n-border-width);
             width: var(--border-width);
             cursor: ew-resize;
         }
-        &.dl{
+        &.dl {
             bottom: var(--n-border-width);
             height: var(--border-width);
             left: var(--n-border-width);
             width: var(--border-width);
             cursor: nesw-resize;
         }
-        &.d{
+        &.d {
             bottom: var(--n-border-width);
             height: var(--border-width);
             left: 0;
             right: 0;
             cursor: ns-resize;
         }
-        &.dr{
+        &.dr {
             bottom: var(--n-border-width);
             height: var(--border-width);
             right: var(--n-border-width);
@@ -97,39 +96,39 @@ util.addStylesheet($scss`
     }
 }
 
-.animator{
-    opacity: 1.0;
+.animator {
+    opacity: 1;
     transition: 0.1s opacity;
     transform-origin: var(--origin-x) var(--origin-y);
     transform: scale(var(--progress-w), var(--progress-h));
     cursor: default;
-    position:absolute; /*for z-index on ios safari*/
+    position: absolute; /*for z-index on ios safari*/
 
     max-height: 0;
 
-    &.drag{
+    &.drag {
         cursor: move;
         opacity: 0.5;
     }
-    &.scale{
+    &.scale {
         cursor: resize;
     }
-    &.closing{
+    &.closing {
         transition: 0.1s transform ease-in, 0.1s opacity ease-in;
         transform: scale(0.8);
         opacity: 0;
         pointer-events: none;
     }
-    &.opening{
+    &.opening {
         transition: 0.1s transform ease-in, 0.1s opacity ease-in;
-        &.openinit{
+        &.openinit {
             transform: scale(0.8);
             opacity: 0;
         }
     }
 }
 
-.titlebar{
+.titlebar {
     padding: 5px;
     cursor: inherit;
     -webkit-user-select: none;
@@ -138,27 +137,18 @@ util.addStylesheet($scss`
     grid-template-columns: 1fr;
     grid-auto-columns: max-content;
     grid-auto-flow: column;
-    .ui[uistyle=dragabove] &{
-        background-color: rgba(255,255,255,0.9);
+    .ui[uistyle="dragabove"] & {
+        background-color: rgba(255, 255, 255, 0.9);
     }
-    .ui[uistyle=dragbelow] &{
+    .ui[uistyle="dragbelow"] & {
         grid-row: 2;
     }
 }
-.body{
-    background-color: rgba(255, 255, 255, 1.0);
-    overflow: hidden;
-    width:100%; /*for ios safari fullscreen*/
-    height:100%;
-    .ui[uistyle=dragbelow] &{
-        border-radius: 6px;
-        box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
-    }
-}
-button{
+
+button {
     border: 0;
     background-color: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     border-radius: 5px;
     padding: 5px;
     margin: 5px;
@@ -167,6 +157,37 @@ button{
         padding-bottom: 0;
         margin-top: 0;
         margin-bottom: 0;
+    }
+    &.btnclose {
+        margin-top: -5px;
+        margin-right: -5px;
+        margin-bottom: -5px;
+        padding: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    body[buttonstyle="2"] & {
+        transition: 0.1s box-shadow;
+        box-shadow: 3px 3px 5px 0px #0001, 1px 1px 3px 0px #0001,
+            inset 0px 0px 0px 0px #fff9, inset 0px 0px 0px 0px #0001,
+            inset 0px 0px 0px 0px #fff9, inset 0px 0px 0px 0px #0001;
+        background-color: #fff;
+        &:active {
+            box-shadow: 0px 0px 0px 0px #0001, 0px 0px 0px 0px #0001,
+                inset -8px -8px 20px 0px #fff9, inset -5px -5px 6px 0px #fff9,
+                inset 8px 8px 20px 0px #0003, inset 5px 5px 6px 0px #0001;
+        }
+    }
+}
+
+.body {
+    background-color: #e0e5ec;
+    overflow: hidden;
+    width: 100%; /*for ios safari fullscreen*/
+    height: 100%;
+    .ui[uistyle="dragbelow"] & {
+        border-radius: 6px;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
     }
 }
 
